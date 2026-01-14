@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Imanes Turísticos AR - Zoom de Impacto</title>
+    <title>Imanes Turísticos AR - Texto Móvil</title>
     
     <script src="aframe.min.js"></script>
     <script src="mindar-image-aframe.prod.js"></script>
@@ -170,6 +170,46 @@
             box-shadow: 0 12px 30px rgba(255, 152, 0, 0.6);
         }
 
+        /* TEXTO MÓVIL HORIZONTAL */
+        #moving-text {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(90deg, 
+                rgba(0, 0, 0, 0.9) 0%,
+                rgba(255, 152, 0, 0.8) 50%,
+                rgba(0, 0, 0, 0.9) 100%
+            );
+            display: none;
+            align-items: center;
+            overflow: hidden;
+            z-index: 995;
+            border-bottom: 3px solid #FF9800;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.7);
+        }
+
+        .text-track {
+            display: flex;
+            white-space: nowrap;
+            animation: moveText 20s linear infinite;
+        }
+
+        .text-item {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 10px #FF9800,
+                        0 0 20px #FF5722,
+                        0 0 30px #FF9800;
+            margin-right: 100px;
+            padding: 5px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            border: 2px solid #FF9800;
+        }
+
         /* EFECTO DE ESCANEO */
         #scan-overlay {
             position: fixed;
@@ -272,7 +312,7 @@
         /* BOTÓN SALIR MEJORADO */
         #exit-btn {
             position: fixed;
-            top: 20px;
+            top: 60px; /* Debajo del texto móvil */
             right: 20px;
             width: 60px;
             height: 60px;
@@ -333,7 +373,7 @@
         /* INDICADOR DE ESTADO */
         #status {
             position: fixed;
-            top: 20px;
+            top: 60px; /* Debajo del texto móvil */
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.9);
@@ -384,6 +424,15 @@
             100% { opacity: 0; }
         }
 
+        @keyframes moveText {
+            0% {
+                transform: translateX(100%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
         @keyframes impactZoom {
             0% { 
                 transform: scale(0.1);
@@ -415,10 +464,17 @@
             }
         }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0) translateY(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px) translateY(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px) translateY(5px); }
+        @keyframes textGlow {
+            0%, 100% { 
+                text-shadow: 0 0 5px #FF9800,
+                           0 0 10px #FF5722,
+                           0 0 15px #FF9800;
+            }
+            50% { 
+                text-shadow: 0 0 10px #FF9800,
+                           0 0 20px #FF5722,
+                           0 0 30px #FF9800;
+            }
         }
 
         /* RESPONSIVE */
@@ -436,6 +492,13 @@
             .auth-container {
                 padding: 30px 20px;
                 margin: 0 20px;
+            }
+            #moving-text {
+                height: 40px;
+            }
+            .text-item {
+                font-size: 1.4rem;
+                margin-right: 60px;
             }
         }
     </style>
@@ -477,6 +540,13 @@
         <button class="start-btn" id="start-btn">
             🔍 INICIAR ESCANEO
         </button>
+    </div>
+
+    <!-- TEXTO MÓVIL HORIZONTAL -->
+    <div id="moving-text">
+        <div class="text-track" id="text-track">
+            <!-- El contenido se genera dinámicamente con JavaScript -->
+        </div>
     </div>
 
     <!-- EFECTO DE ESCANEO -->
@@ -525,6 +595,8 @@
             arScene: document.getElementById('ar-scene'),
             scanOverlay: document.getElementById('scan-overlay'),
             flashEffect: document.getElementById('flash-effect'),
+            movingText: document.getElementById('moving-text'),
+            textTrack: document.getElementById('text-track'),
             exitBtn: document.getElementById('exit-btn'),
             arControls: document.getElementById('ar-controls'),
             status: document.getElementById('status'),
@@ -536,6 +608,25 @@
             replayBtn: document.getElementById('replay-btn'),
             impactBtn: document.getElementById('impact-btn')
         };
+
+        // ===== CREAR TEXTO MÓVIL =====
+        function createMovingText() {
+            const text = "SÉTIMA MARAVILHA DO MUNDO";
+            const repeatCount = 8; // Número de veces que se repite el texto
+            
+            elements.textTrack.innerHTML = '';
+            
+            for (let i = 0; i < repeatCount; i++) {
+                const textElement = document.createElement('span');
+                textElement.className = 'text-item';
+                textElement.textContent = text;
+                textElement.style.animationDelay = `${i * 0.5}s`;
+                elements.textTrack.appendChild(textElement);
+            }
+            
+            // Iniciar animación
+            elements.textTrack.style.animation = 'moveText 20s linear infinite';
+        }
 
         // ===== MOSTRAR ESTADO =====
         function showStatus(text, color = '#FF9800', duration = 3000) {
@@ -671,10 +762,14 @@
                 return;
             }
             
-            console.log('🚀 Iniciando AR con efecto de zoom...');
+            console.log('🚀 Iniciando AR con efecto de zoom y texto móvil...');
             
             // Ocultar pantalla de inicio
             elements.startScreen.style.display = 'none';
+            
+            // Mostrar texto móvil
+            createMovingText();
+            elements.movingText.style.display = 'flex';
             
             // Mostrar efecto de escaneo
             startScanEffect();
@@ -748,6 +843,24 @@
                                             easing: easeOutElastic"
                         ></a-video>
                         
+                        <!-- TEXTO 3D EN LA PARTE SUPERIOR DEL VIDEO -->
+                        <a-entity position="0 0.7 0.01" rotation="0 0 0" scale="0.8 0.8 0.8">
+                            <a-text
+                                id="3d-text"
+                                value="SÉTIMA MARAVILHA DO MUNDO"
+                                color="#FF9800"
+                                align="center"
+                                width="3"
+                                position="0 0 0"
+                                animation="property: color; 
+                                         from: #FF9800; 
+                                         to: #FF5722; 
+                                         dur: 2000; 
+                                         dir: alternate; 
+                                         loop: true"
+                            ></a-text>
+                        </a-entity>
+                        
                         <!-- EFECTO DE PARTÍCULAS -->
                         <a-entity id="particles" position="0 0 0" visible="false">
                             <a-circle 
@@ -812,6 +925,9 @@
                 triggerZoomEffect();
                 stopScanEffect();
                 
+                // Cambiar el texto móvil cuando se detecta
+                changeMovingTextOnDetection();
+                
                 // Mostrar mensaje de éxito con impacto
                 showStatus('💥 ¡IMÁN DETECTADO! EFECTO ZOOM ACTIVADO', '#FF9800', 3000);
                 
@@ -843,6 +959,9 @@
                 // Reanudar efecto de escaneo
                 startScanEffect();
                 
+                // Volver al texto original
+                createMovingText();
+                
                 // Mostrar mensaje de búsqueda
                 showStatus('🔍 ESCANEANDO IMÁN...', '#00ff00', 0);
                 
@@ -854,6 +973,36 @@
             
             // Marcar AR como activo
             isARActive = true;
+        }
+
+        // ===== CAMBIAR TEXTO MÓVIL AL DETECTAR =====
+        function changeMovingTextOnDetection() {
+            const detectionTexts = [
+                "✨ SÉTIMA MARAVILHA DO MUNDO ✨",
+                "🎯 IMÃN DETECTADO! 🎯",
+                "💥 EXPERIÊNCIA ATIVADA 💥",
+                "🌟 CONTEÚDO EXCLUSIVO 🌟",
+                "🚀 REALIDADE AUMENTADA 🚀"
+            ];
+            
+            let currentIndex = 0;
+            
+            // Cambiar el texto cada 3 segundos
+            const textChangeInterval = setInterval(() => {
+                const textElements = document.querySelectorAll('.text-item');
+                
+                textElements.forEach(element => {
+                    element.textContent = detectionTexts[currentIndex];
+                    element.style.animation = 'textGlow 2s infinite alternate';
+                });
+                
+                currentIndex = (currentIndex + 1) % detectionTexts.length;
+                
+                // Si perdemos el target, limpiamos el intervalo
+                if (!isARActive || !currentTarget || !currentTarget.components['mindar-image-target'].targetFound) {
+                    clearInterval(textChangeInterval);
+                }
+            }, 3000);
         }
 
         // ===== CONFIGURAR CONTROLES =====
@@ -939,6 +1088,9 @@
             // Detener efecto de escaneo
             stopScanEffect();
             
+            // Ocultar texto móvil
+            elements.movingText.style.display = 'none';
+            
             // Limpiar escena
             elements.arScene.innerHTML = '';
             elements.arScene.style.display = 'none';
@@ -963,7 +1115,7 @@
 
         // ===== INICIALIZACIÓN =====
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('💥 Aplicación AR con efecto ZOOM cargada');
+            console.log('💥 Aplicación AR con texto móvil cargada');
             
             // Configurar autorización
             setupAuthorization();
