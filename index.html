@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Imanes Turísticos AR - Triple Frontera</title>
+    
+    <!-- A-Frame y MindAR -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ===== ESTILOS BÁSICOS ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            font-family: 'Arial', sans-serif;
+            background: #000;
+            color: white;
+        }
+
+        /* ===== PANTALLA DE MARCADOR ===== */
+        #marker-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0c2461, #1e3799);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .marker-content {
+            max-width: 95%;
+        }
+
+        .marker-preview {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 30px;
+            background: white;
+            border-radius: 15px;
+            border: 5px dashed #FF9800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: #0c2461;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        p {
+            margin-bottom: 30px;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        /* ===== BOTONES ===== */
+        .btn {
+            padding: 15px 40px;
+            background: #FF9800;
+            color: black;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            display: inline-block;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid #FF9800;
+        }
+
+        /* ===== ESCENA AR ===== */
+        #ar-scene {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        /* ===== CONTROLES ===== */
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            display: none;
+            justify-content: center;
+            gap: 15px;
+            z-index: 999;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(52, 152, 219, 0.9);
+            border: 2px solid white;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #exit-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(231, 76, 60, 0.9);
+            border: 2px solid white;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: none;
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .marker-preview {
+                width: 150px;
+                height: 150px;
+                font-size: 3rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .btn {
+                padding: 12px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== PANTALLA 1: MUESTRA EL MARCADOR ===== -->
+    <div id="marker-screen">
+        <div class="marker-content">
+            <div class="marker-preview">
+                🦜 <!-- Cambia esto por la imagen de tu imán -->
+            </div>
+            
+            <h1>¡ESCANEA TU IMÁN TURÍSTICO!</h1>
+            
+            <p>
+                Busca el imán con este diseño y apúntalo con la cámara.<br>
+                Si no tienes el imán físico, puedes usar el modo libre.
+            </p>
+            
+            <button class="btn" id="start-ar-btn">
+                <i class="fas fa-camera"></i> ESCANEAR IMÁN
+            </button>
+            
+            <button class="btn btn-secondary" id="start-free-btn">
+                <i class="fas fa-hand-pointer"></i> MODO LIBRE (SIN IMÁN)
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== ESCENA AR ===== -->
+    <div id="ar-scene"></div>
+
+    <!-- ===== CONTROLES ===== -->
+    <button id="exit-btn" title="Volver">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+    
+    <div class="controls" id="controls">
+        <button class="control-btn" id="place-btn" title="Colocar contenido">
+            <i class="fas fa-map-marker-alt"></i>
+        </button>
+        <button class="control-btn" id="sound-btn" title="Sonido">
+            <i class="fas fa-volume-up"></i>
+        </button>
+        <button class="control-btn" id="help-btn" title="Ayuda">
+            <i class="fas fa-question"></i>
+        </button>
+    </div>
+
+    <script>
+        // ===== VARIABLES =====
+        let currentMode = ''; // 'marker' o 'free'
+        let arVideo = null;
+        let soundEnabled = true;
+
+        // ===== FUNCIONES PRINCIPALES =====
+
+        // MODO 1: CON MARCADOR (tu sistema actual)
+        function startMarkerAR() {
+            currentMode = 'marker';
+            
+            // Ocultar pantalla de marcador
+            document.getElementById('marker-screen').style.display = 'none';
+            
+            // Crear escena AR con MindAR (detector de marcadores)
+            document.getElementById('ar-scene').innerHTML = `
+                <a-scene 
+                    mindar-image="imageTargetSrc: ./marker.mind; autoStart: true; uiScanning: no; uiLoading: no;" 
+                    vr-mode-ui="enabled: false"
+                    device-orientation-permission-ui="enabled: false"
+                    embedded
+                >
+                    <a-assets>
+                        <video id="ar-video" src="./asset.mp4" preload="auto" loop playsinline></video>
+                    </a-assets>
+                    
+                    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+                    
+                    <a-entity mindar-image-target="targetIndex: 0">
+                        <a-video src="#ar-video" width="1.78" height="1" position="0 0 0"></a-video>
+                    </a-entity>
+                </a-scene>
+            `;
+            
+            // Mostrar escena y controles
+            document.getElementById('ar-scene').style.display = 'block';
+            document.getElementById('exit-btn').style.display = 'flex';
+            document.getElementById('controls').style.display = 'flex';
+            
+            // Configurar controles
+            setupControls();
+        }
+
+        // MODO 2: SIN MARCADOR (markerless)
+        function startFreeAR() {
+            currentMode = 'free';
+            
+            // Ocultar pantalla de marcador
+            document.getElementById('marker-screen').style.display = 'none';
+            
+            // Crear escena AR simple (sin detector de marcadores)
+            document.getElementById('ar-scene').innerHTML = `
+                <a-scene embedded>
+                    <a-assets>
+                        <video id="ar-video" src="./asset.mp4" preload="auto" loop playsinline></video>
+                    </a-assets>
+                    
+                    <a-camera position="0 1.6 0">
+                        <a-cursor></a-cursor>
+                    </a-camera>
+                    
+                    <!-- Video flotante (aparecerá cuando el usuario toque) -->
+                    <a-video id="floating-video" src="#ar-video" width="1.78" height="1" 
+                             position="0 0 -2" visible="false"></a-video>
+                    
+                    <!-- Indicador de superficie -->
+                    <a-plane id="surface-indicator" color="#FF9800" opacity="0.5" 
+                             width="2" height="1" rotation="-90 0 0" visible="false"></a-plane>
+                </a-scene>
+            `;
+            
+            // Mostrar escena y controles
+            document.getElementById('ar-scene').style.display = 'block';
+            document.getElementById('exit-btn').style.display = 'flex';
+            document.getElementById('controls').style.display = 'flex';
+            
+            // Configurar controles
+            setupControls();
+            
+            // Para modo libre: mostrar instrucciones
+            setTimeout(() => {
+                alert("Modo libre activado:\n1. Busca una superficie plana\n2. Toca el botón 📍\n3. Toca donde quieras colocar el video");
+            }, 500);
+        }
+
+        // ===== CONFIGURAR CONTROLES =====
+        function setupControls() {
+            const exitBtn = document.getElementById('exit-btn');
+            const placeBtn = document.getElementById('place-btn');
+            const soundBtn = document.getElementById('sound-btn');
+            const helpBtn = document.getElementById('help-btn');
+            
+            // Botón de salida
+            exitBtn.addEventListener('click', () => {
+                // Detener video
+                if (arVideo) {
+                    arVideo.pause();
+                    arVideo.currentTime = 0;
+                }
+                
+                // Limpiar escena
+                document.getElementById('ar-scene').innerHTML = '';
+                document.getElementById('ar-scene').style.display = 'none';
+                document.getElementById('exit-btn').style.display = 'none';
+                document.getElementById('controls').style.display = 'none';
+                
+                // Volver a pantalla inicial
+                document.getElementById('marker-screen').style.display = 'flex';
+            });
+            
+            // Botón para colocar (solo en modo libre)
+            placeBtn.addEventListener('click', () => {
+                if (currentMode === 'free') {
+                    // Activar modo colocación
+                    const scene = document.querySelector('a-scene');
+                    const cursor = scene.querySelector('a-cursor');
+                    
+                    // Cambiar cursor a modo colocación
+                    cursor.setAttribute('material', 'color', '#FF9800');
+                    
+                    // Cuando el usuario toque la pantalla
+                    scene.addEventListener('click', placeVideoHandler);
+                    
+                    alert("Toca en cualquier superficie para colocar el video");
+                }
+            });
+            
+            // Botón de sonido
+            soundBtn.addEventListener('click', () => {
+                soundEnabled = !soundEnabled;
+                if (arVideo) {
+                    arVideo.muted = !soundEnabled;
+                }
+                soundBtn.innerHTML = soundEnabled ? 
+                    '<i class="fas fa-volume-up"></i>' : 
+                    '<i class="fas fa-volume-mute"></i>';
+            });
+            
+            // Botón de ayuda
+            helpBtn.addEventListener('click', () => {
+                if (currentMode === 'marker') {
+                    alert("Apunta la cámara al imán turístico para ver el video en realidad aumentada.");
+                } else {
+                    alert("Modo libre:\n1. Busca una superficie plana\n2. Toca 📍 para activar colocación\n3. Toca donde quieras ver el video");
+                }
+            });
+        }
+
+        // ===== MANEJADOR PARA COLOCAR VIDEO (MODO LIBRE) =====
+        function placeVideoHandler(event) {
+            const scene = document.querySelector('a-scene');
+            const video = document.getElementById('floating-video');
+            const indicator = document.getElementById('surface-indicator');
+            
+            // Obtener posición donde tocó el usuario
+            const position = event.detail.intersection.point;
+            
+            // Colocar video en esa posición
+            video.setAttribute('position', position);
+            video.setAttribute('visible', 'true');
+            
+            // Reproducir video
+            arVideo = video.components.material.material.map.image;
+            arVideo.muted = !soundEnabled;
+            arVideo.play().catch(e => {
+                console.log("Autoplay bloqueado, tocando con mute");
+                arVideo.muted = true;
+                arVideo.play();
+            });
+            
+            // Desactivar modo colocación
+            scene.removeEventListener('click', placeVideoHandler);
+            const cursor = scene.querySelector('a-cursor');
+            cursor.setAttribute('material', 'color', '#FFF');
+            
+            // Ocultar indicador
+            indicator.setAttribute('visible', 'false');
+        }
+
+        // ===== INICIALIZACIÓN =====
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("🎪 Experiencia AR para Imanes Turísticos");
+            
+            // Botón para escanear imán (modo con marcador)
+            document.getElementById('start-ar-btn').addEventListener('click', () => {
+                startMarkerAR();
+            });
+            
+            // Botón para modo libre (sin marcador)
+            document.getElementById('start-free-btn').addEventListener('click', () => {
+                startFreeAR();
+            });
+            
+            // Verificar si hay cámara disponible
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert("Tu dispositivo no tiene cámara o no es compatible.");
+                document.getElementById('start-ar-btn').disabled = true;
+                document.getElementById('start-free-btn').disabled = true;
+            }
+        });
+    </script>
+</body>
+</html>
