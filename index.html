@@ -2,273 +2,139 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Imanes Turísticos AR - Triple Frontera</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Imanes AR - Experiencia Completa</title>
     
-    <!-- A-Frame y MindAR -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     
-    <!-- FontAwesome para iconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        /* ===== RESET Y BASE ===== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
+        /* ===== ESTILOS GENERALES ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { width: 100%; height: 100%; font-family: Arial; background: #000; color: white; overflow: hidden; }
+        
+        /* ===== PANTALLA DE INICIO ===== */
+        #start-screen {
             position: fixed;
-            font-family: 'Arial', sans-serif;
-            background: #000;
-            color: white;
-        }
-
-        /* ===== PANTALLA DE CARGA ===== */
-        #loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #0c2461, #1e3799, #4a69bd);
-            z-index: 1000;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #0c2461, #1e3799);
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             text-align: center;
             padding: 20px;
+            z-index: 1000;
         }
-
-        .loading-content {
-            max-width: 95%;
-        }
-
-        .logo-ar {
-            width: 120px;
-            height: 120px;
-            background: linear-gradient(45deg, #00dbde, #fc00ff);
-            border-radius: 50%;
-            margin: 0 auto 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 20px;
             animation: pulse 2s infinite;
         }
-
-        .logo-inner {
-            width: 100px;
-            height: 100px;
-            background: rgba(0, 0, 0, 0.8);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            font-weight: bold;
-            color: white;
-        }
-
-        .title-main {
+        
+        h1 {
             font-size: 1.8rem;
             margin-bottom: 10px;
-            background: linear-gradient(45deg, white, #ff9a00);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
-
-        .title-sub {
+        
+        .subtitle {
             font-size: 1rem;
             opacity: 0.9;
             margin-bottom: 30px;
-            max-width: 500px;
-            line-height: 1.5;
-        }
-
-        .progress-container {
-            width: 80%;
             max-width: 400px;
-            height: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
-            overflow: hidden;
-            margin: 20px auto;
-        }
-
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #ff9a00, #ff5e00);
-            border-radius: 5px;
-            transition: width 0.5s ease;
-        }
-
-        .percentage {
-            font-size: 1.2rem;
-            margin: 10px 0 30px;
-            font-weight: bold;
-        }
-
-        #start-btn {
-            padding: 15px 40px;
-            background: linear-gradient(45deg, #ff416c, #ff4b2b);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: none;
-            box-shadow: 0 8px 25px rgba(255, 65, 108, 0.4);
-        }
-
-        /* ===== PANTALLA DE INSTRUCCIONES ===== */
-        #instructions-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-            z-index: 1001;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .instructions-content {
-            max-width: 95%;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 30px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .instructions-title {
-            font-size: 1.8rem;
-            margin-bottom: 20px;
-            color: #ff9a00;
-        }
-
-        .instructions-steps {
-            text-align: left;
-            margin: 20px 0;
-            padding-left: 20px;
-        }
-
-        .instructions-steps li {
-            margin-bottom: 15px;
             line-height: 1.5;
         }
-
-        .instructions-btn {
-            padding: 15px 40px;
-            background: linear-gradient(45deg, #00dbde, #fc00ff);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-
-        /* ===== PANTALLA DE PERMISOS ===== */
-        #permission-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 1002;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .permission-content {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 30px;
-            border-radius: 20px;
-            max-width: 500px;
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .permission-icon {
-            font-size: 4rem;
-            color: #4CAF50;
-            margin-bottom: 20px;
-        }
-
-        .permission-title {
-            font-size: 1.8rem;
-            margin-bottom: 15px;
-            color: white;
-        }
-
-        .permission-text {
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-
-        .permission-buttons {
+        
+        /* ===== OPCIONES ===== */
+        .options {
             display: flex;
-            gap: 15px;
-            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
         }
-
-        .permission-btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: bold;
+        
+        .option-btn {
+            width: 140px;
+            height: 140px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #FF9800;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
             transition: all 0.3s;
         }
-
-        .permission-btn.allow {
-            background: linear-gradient(45deg, #4CAF50, #2E7D32);
-            color: white;
+        
+        .option-btn:hover {
+            background: rgba(255, 152, 0, 0.2);
+            transform: scale(1.05);
         }
-
-        .permission-btn.deny {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+        
+        .option-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
         }
-
+        
+        .option-text {
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        /* ===== BARRA DE PROGRESO ===== */
+        .progress-container {
+            width: 80%;
+            max-width: 300px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #FF9800, #FF5722);
+            transition: width 0.5s ease;
+        }
+        
+        .progress-text {
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            height: 20px;
+        }
+        
+        /* ===== BOTÓN PRINCIPAL ===== */
+        .main-btn {
+            background: #FF9800;
+            color: black;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .main-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
         /* ===== ESCENA AR ===== */
         #ar-scene {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            transition: opacity 1s;
-            z-index: 800;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: none;
         }
-
+        
         /* ===== CONTROLES AR ===== */
         #ar-controls {
             position: fixed;
@@ -279,27 +145,21 @@
             gap: 15px;
             z-index: 999;
         }
-
-        .ar-control-btn {
+        
+        .control-btn {
             width: 60px;
             height: 60px;
             border-radius: 50%;
             background: rgba(52, 152, 219, 0.9);
             border: 2px solid white;
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
-            transition: all 0.3s;
         }
-
-        .ar-control-btn:hover {
-            transform: scale(1.1);
-        }
-
+        
         #exit-btn {
             position: fixed;
             top: 20px;
@@ -317,570 +177,427 @@
             align-items: center;
             justify-content: center;
         }
-
-        /* ===== INDICADOR DE DETECCIÓN ===== */
-        #detection-indicator {
+        
+        /* ===== INDICADOR ===== */
+        #indicator {
             position: fixed;
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 12px 25px;
+            padding: 10px 25px;
             border-radius: 25px;
             display: none;
             z-index: 999;
-            border: 2px solid #FF9800;
-            font-size: 0.9rem;
         }
-
+        
         /* ===== ANIMACIONES ===== */
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
-
+        
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
-
+        
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
-            .title-main { font-size: 1.5rem; }
-            .title-sub { font-size: 0.9rem; }
-            .logo-ar { width: 100px; height: 100px; }
-            .logo-inner { width: 80px; height: 80px; font-size: 1.5rem; }
-            .ar-control-btn { width: 50px; height: 50px; font-size: 1.2rem; }
-            #exit-btn { width: 45px; height: 45px; top: 15px; right: 15px; }
-        }
-
-        /* ===== OCULTAR UI DE A-FRAME ===== */
-        .a-enter-vr, .a-enter-ar, .vr-button, .ar-button,
-        .a-orientation-modal, .a-dialog, .a-modal,
-        .mindar-ui-overlay, .a-loader-title {
-            display: none !important;
-            opacity: 0 !important;
-            visibility: hidden !important;
+            .options {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .option-btn {
+                width: 200px;
+                height: 100px;
+                flex-direction: row;
+                gap: 15px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .subtitle {
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- ===== PANTALLA DE CARGA ===== -->
-    <div id="loading-screen">
-        <div class="loading-content">
-            <div class="logo-ar">
-                <div class="logo-inner">AR</div>
+    <!-- ===== PANTALLA DE INICIO ===== -->
+    <div id="start-screen">
+        <div class="logo">🦜</div>
+        <h1>EXPERIENCIA AR INMERSIVA</h1>
+        <p class="subtitle">Elige cómo quieres vivir la experiencia de realidad aumentada</p>
+        
+        <div class="options">
+            <div class="option-btn" id="option-marker">
+                <div class="option-icon">🎯</div>
+                <div class="option-text">CON IMÁN</div>
+                <div style="font-size: 0.8rem; opacity: 0.8; margin-top: 5px;">Escanea tu imán físico</div>
             </div>
             
-            <h1 class="title-main">IMANES TURÍSTICOS AR</h1>
-            <p class="title-sub">Cargando recursos necesarios para la experiencia...</p>
-            
-            <div class="progress-container">
-                <div class="progress-bar" id="progressBar"></div>
+            <div class="option-btn" id="option-markerless">
+                <div class="option-icon">✨</div>
+                <div class="option-text">MODO LIBRE</div>
+                <div style="font-size: 0.8rem; opacity: 0.8; margin-top: 5px;">Coloca contenido donde quieras</div>
             </div>
-            
-            <div class="percentage" id="percentage">0%</div>
-            
-            <button id="start-btn">VER INSTRUCCIONES</button>
         </div>
-    </div>
-
-    <!-- ===== PANTALLA DE INSTRUCCIONES ===== -->
-    <div id="instructions-screen">
-        <div class="instructions-content">
-            <h2 class="instructions-title">Cómo usar la aplicación</h2>
-            
-            <ol class="instructions-steps">
-                <li><strong>Paso 1:</strong> Asegúrate de tener el imán turístico a mano.</li>
-                <li><strong>Paso 2:</strong> Cuando inicies la cámara, apunta al imán.</li>
-                <li><strong>Paso 3:</strong> Mantén el imán estable para una mejor experiencia.</li>
-                <li><strong>Paso 4:</strong> Si quieres, activa el sonido con el botón 🔊.</li>
-                <li><strong>Paso 5:</strong> Para salir, toca el botón rojo en la esquina superior derecha.</li>
-            </ol>
-            
-            <p style="margin-top: 20px; font-size: 0.9rem; opacity: 0.8;">
-                <i class="fas fa-lightbulb"></i> Consejo: Usa buena iluminación y evando mover demasiado el imán.
-            </p>
-            
-            <button class="instructions-btn" id="instructions-next-btn">
-                <i class="fas fa-camera"></i> CONTINUAR
-            </button>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
         </div>
+        
+        <div class="progress-text" id="progressText">Selecciona una opción para comenzar</div>
+        
+        <button class="main-btn" id="startBtn" disabled>
+            <span>⏳ ESPERANDO...</span>
+        </button>
     </div>
-
-    <!-- ===== PANTALLA DE PERMISOS ===== -->
-    <div id="permission-screen">
-        <div class="permission-content">
-            <div class="permission-icon">
-                <i class="fas fa-camera"></i>
-            </div>
-            
-            <h2 class="permission-title">Permiso de Cámara Requerido</h2>
-            
-            <p class="permission-text">
-                Para usar la experiencia de Realidad Aumentada, necesitamos acceso a tu cámara.<br><br>
-                Esta aplicación solo usa la cámara para escanear los imanes turísticos y mostrar contenido AR. No grabamos ni almacenamos ningún video.
-            </p>
-            
-            <div class="permission-buttons">
-                <button class="permission-btn allow" id="allow-camera-btn">
-                    <i class="fas fa-check"></i> PERMITIR CÁMARA
-                </button>
-                <button class="permission-btn deny" id="deny-camera-btn">
-                    <i class="fas fa-times"></i> DENEGAR
-                </button>
-            </div>
-            
-            <p style="margin-top: 20px; font-size: 0.8rem; opacity: 0.7;">
-                <i class="fas fa-info-circle"></i> Si deniegas el permiso, la aplicación no funcionará.
-            </p>
-        </div>
-    </div>
-
+    
     <!-- ===== ESCENA AR ===== -->
     <div id="ar-scene"></div>
-
-    <!-- ===== CONTROLES AR ===== -->
-    <button id="exit-btn" title="Salir"><i class="fas fa-times"></i></button>
     
+    <!-- ===== CONTROLES ===== -->
+    <button id="exit-btn" title="Volver al inicio">←</button>
     <div id="ar-controls">
-        <button class="ar-control-btn" id="sound-btn" title="Sonido">
-            <i class="fas fa-volume-mute"></i>
-        </button>
-        <button class="ar-control-btn" id="help-btn" title="Ayuda">
-            <i class="fas fa-question"></i>
-        </button>
+        <button class="control-btn" id="sound-btn" title="Sonido">🔊</button>
+        <button class="control-btn" id="place-btn" title="Colocar">📍</button>
+        <button class="control-btn" id="help-btn" title="Ayuda">❓</button>
     </div>
-
-    <!-- ===== INDICADOR DE DETECCIÓN ===== -->
-    <div id="detection-indicator">
-        <i class="fas fa-search"></i> Buscando marcador...
-    </div>
+    
+    <!-- ===== INDICADOR ===== -->
+    <div id="indicator">Preparando cámara...</div>
 
     <script>
         // ===== VARIABLES GLOBALES =====
+        let selectedMode = ''; // 'marker' o 'markerless'
         let arVideo = null;
-        let arTarget = null;
         let soundEnabled = false;
-        let cameraPermissionGranted = false;
-
-        // ===== CARGAR RECURSOS CON BARRA DE PROGRESO REAL =====
-        function loadResources() {
-            const progressBar = document.getElementById('progressBar');
-            const percentage = document.getElementById('percentage');
-            const startBtn = document.getElementById('start-btn');
+        let isVideoPlaced = false;
+        
+        // ===== SELECCIÓN DE MODO =====
+        document.getElementById('option-marker').addEventListener('click', () => {
+            selectMode('marker');
+        });
+        
+        document.getElementById('option-markerless').addEventListener('click', () => {
+            selectMode('markerless');
+        });
+        
+        function selectMode(mode) {
+            selectedMode = mode;
             
-            // Vamos a cargar el video y el marcador
-            let videoLoaded = false;
-            let markerLoaded = false;
-            
-            // Función para actualizar el progreso
-            function updateProgress() {
-                let progress = 0;
-                if (videoLoaded) progress += 70;
-                if (markerLoaded) progress += 30;
-                
-                progressBar.style.width = progress + '%';
-                percentage.textContent = progress + '%';
-                
-                if (progress >= 100) {
-                    percentage.textContent = '¡Carga completada!';
-                    percentage.style.color = '#00ff88';
-                    
-                    // Mostrar botón de inicio
-                    startBtn.style.display = 'block';
-                    startBtn.style.animation = 'fadeIn 0.5s forwards';
-                }
-            }
-            
-            // Cargar el video
-            const video = document.createElement('video');
-            video.src = './asset.mp4';
-            video.preload = 'auto';
-            
-            video.addEventListener('progress', function() {
-                // No podemos saber el progreso real del video sin hacer una petición con range headers,
-                // así que simularemos que se carga en un 70% cuando el video tenga algunos datos.
-                if (video.buffered.length > 0) {
-                    // Si hay datos buffereados, consideramos que el video está cargado al 70%
-                    videoLoaded = true;
-                    updateProgress();
-                }
+            // Resetear selección visual
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.style.background = 'rgba(255, 255, 255, 0.1)';
+                btn.style.borderColor = '#FF9800';
             });
             
-            video.addEventListener('canplaythrough', function() {
-                videoLoaded = true;
-                updateProgress();
-            });
+            // Marcar opción seleccionada
+            const selectedBtn = document.getElementById(`option-${mode}`);
+            selectedBtn.style.background = 'rgba(255, 152, 0, 0.3)';
+            selectedBtn.style.borderColor = '#4CAF50';
             
-            video.addEventListener('error', function() {
-                alert('Error al cargar el video. Asegúrate de que el archivo asset.mp4 esté en la carpeta.');
-            });
+            // Habilitar botón de inicio
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('startBtn').innerHTML = mode === 'marker' 
+                ? '🎯 ESCANEAR IMÁN' 
+                : '✨ INICIAR MODO LIBRE';
             
-            // Cargar el marcador (archivo .mind)
-            fetch('./marker.mind')
-                .then(response => {
-                    if (response.ok) {
-                        return response.blob();
-                    } else {
-                        throw new Error('No se pudo cargar el marcador');
-                    }
-                })
-                .then(() => {
-                    markerLoaded = true;
-                    updateProgress();
-                })
-                .catch(error => {
-                    console.error('Error al cargar el marcador:', error);
-                    alert('Error al cargar el marcador. Asegúrate de que el archivo marker.mind esté en la carpeta.');
-                });
+            // Actualizar texto de progreso
+            document.getElementById('progressText').textContent = 
+                mode === 'marker' 
+                    ? 'Listo para escanear tu imán físico' 
+                    : 'Listo para colocar contenido en cualquier lugar';
+            
+            // Iniciar barra de progreso
+            startProgressBar();
         }
-
-        // ===== PEDIR PERMISOS DE CÁMARA =====
-        function requestCameraPermission() {
-            return new Promise((resolve) => {
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    alert('Tu dispositivo no soporta acceso a la cámara');
-                    resolve(false);
-                    return;
-                }
-                
-                navigator.mediaDevices.getUserMedia({ video: true })
-                    .then((stream) => {
-                        // Detener el stream inmediatamente (solo necesitamos el permiso)
-                        stream.getTracks().forEach(track => track.stop());
-                        cameraPermissionGranted = true;
-                        console.log('✅ Permiso de cámara concedido');
-                        resolve(true);
-                    })
-                    .catch((err) => {
-                        console.error('❌ Error con la cámara:', err);
-                        cameraPermissionGranted = false;
-                        
-                        // Mostrar mensaje según el error
-                        if (err.name === 'NotAllowedError') {
-                            alert('Permiso de cámara denegado. La aplicación no funcionará sin acceso a la cámara.');
-                        } else if (err.name === 'NotFoundError') {
-                            alert('No se encontró ninguna cámara en tu dispositivo.');
-                        } else {
-                            alert('Error al acceder a la cámara: ' + err.message);
-                        }
-                        
-                        resolve(false);
-                    });
-            });
-        }
-
-        // ===== MOSTRAR PANTALLA DE INSTRUCCIONES =====
-        function showInstructionsScreen() {
-            const loadingScreen = document.getElementById('loading-screen');
-            const instructionsScreen = document.getElementById('instructions-screen');
+        
+        // ===== BARRA DE PROGRESO =====
+        function startProgressBar() {
+            const bar = document.getElementById('progressBar');
+            const text = document.getElementById('progressText');
             
-            loadingScreen.style.opacity = '0';
+            bar.style.width = '30%';
+            text.textContent = 'Preparando sistema...';
             
             setTimeout(() => {
-                loadingScreen.style.display = 'none';
-                instructionsScreen.style.display = 'flex';
-                instructionsScreen.style.animation = 'fadeIn 0.5s forwards';
-            }, 500);
-        }
-
-        // ===== MOSTRAR PANTALLA DE PERMISOS =====
-        function showPermissionScreen() {
-            const instructionsScreen = document.getElementById('instructions-screen');
-            const permissionScreen = document.getElementById('permission-screen');
-            
-            instructionsScreen.style.opacity = '0';
-            
-            setTimeout(() => {
-                instructionsScreen.style.display = 'none';
-                permissionScreen.style.display = 'flex';
-                permissionScreen.style.animation = 'fadeIn 0.5s forwards';
-            }, 500);
-        }
-
-        // ===== INICIAR EXPERIENCIA AR =====
-        async function startARExperience() {
-            const permissionScreen = document.getElementById('permission-screen');
-            
-            // Ocultar pantalla de permisos
-            permissionScreen.style.opacity = '0';
-            
-            setTimeout(() => {
-                permissionScreen.style.display = 'none';
+                bar.style.width = '60%';
+                text.textContent = 'Configurando cámara...';
                 
-                // Crear escena AR
-                createARScene();
-                
-                // Mostrar controles
                 setTimeout(() => {
-                    document.getElementById('exit-btn').style.display = 'flex';
-                    document.getElementById('ar-controls').style.display = 'flex';
-                    document.getElementById('detection-indicator').style.display = 'block';
+                    bar.style.width = '90%';
+                    text.textContent = 'Cargando contenido...';
                     
-                    // Configurar eventos AR
                     setTimeout(() => {
-                        setupAREvents();
-                    }, 1000);
+                        bar.style.width = '100%';
+                        text.textContent = '¡Todo listo!';
+                        
+                        // Cambiar color de la barra
+                        bar.style.background = '#4CAF50';
+                    }, 500);
                 }, 500);
-            }, 300);
+            }, 500);
         }
-
-        // ===== CREAR ESCENA AR =====
-        function createARScene() {
-            const arSceneContainer = document.getElementById('ar-scene');
+        
+        // ===== INICIAR EXPERIENCIA =====
+        document.getElementById('startBtn').addEventListener('click', startARExperience);
+        
+        function startARExperience() {
+            if (!selectedMode) return;
             
-            arSceneContainer.innerHTML = `
+            // Ocultar pantalla de inicio
+            document.getElementById('start-screen').style.display = 'none';
+            
+            // Mostrar controles
+            document.getElementById('exit-btn').style.display = 'flex';
+            document.getElementById('ar-controls').style.display = 'flex';
+            document.getElementById('indicator').style.display = 'block';
+            
+            // Crear escena según el modo
+            if (selectedMode === 'marker') {
+                startMarkerAR();
+            } else {
+                startMarkerlessAR();
+            }
+        }
+        
+        // ===== MODO CON MARCADOR =====
+        function startMarkerAR() {
+            document.getElementById('ar-scene').innerHTML = `
                 <a-scene 
-                    mindar-image="imageTargetSrc: ./marker.mind; autoStart: true; uiScanning: no; uiLoading: no; uiError: no;" 
+                    mindar-image="imageTargetSrc: marker.mind; autoStart: true; uiScanning: no; uiLoading: no;" 
                     vr-mode-ui="enabled: false"
                     device-orientation-permission-ui="enabled: false"
-                    permission-ui="enabled: false"
-                    renderer="colorManagement: true; alpha: true; antialias: true;"
                     embedded
-                    loading-screen="enabled: false"
-                    keyboard-shortcuts="enterVR: false"
                 >
                     <a-assets>
-                        <video 
-                            id="main-video" 
-                            src="./asset.mp4" 
-                            preload="auto"
-                            loop 
-                            muted 
-                            playsinline 
-                            webkit-playsinline
-                            crossorigin="anonymous"
-                        ></video>
+                        <video id="ar-video" src="asset.mp4" preload="auto" loop playsinline></video>
                     </a-assets>
                     
-                    <a-camera 
-                        position="0 0 0" 
-                        look-controls="enabled: false"
-                        wasd-controls="enabled: false"
-                    ></a-camera>
+                    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
                     
-                    <a-entity 
-                        id="main-target" 
-                        mindar-image-target="targetIndex: 0"
-                    >
-                        <a-video
-                            src="#main-video"
-                            width="1.78"
-                            height="1"
-                            position="0 0 0"
-                            rotation="0 0 0"
-                            material="shader: flat; transparent: true; alphaTest: 0.5;"
-                        ></a-video>
+                    <a-entity mindar-image-target="targetIndex: 0">
+                        <a-video src="#ar-video" width="1.78" height="1" position="0 0 0"></a-video>
                     </a-entity>
                 </a-scene>
             `;
             
-            // Mostrar escena AR
-            setTimeout(() => {
-                arSceneContainer.style.opacity = '1';
-            }, 100);
-        }
-
-        // ===== CONFIGURAR EVENTOS AR =====
-        function setupAREvents() {
-            arTarget = document.querySelector('#main-target');
-            arVideo = document.querySelector('#main-video');
-            const soundBtn = document.getElementById('sound-btn');
-            const helpBtn = document.getElementById('help-btn');
-            const detectionIndicator = document.getElementById('detection-indicator');
+            document.getElementById('ar-scene').style.display = 'block';
+            document.getElementById('indicator').textContent = '🔍 Buscando imán...';
             
-            if (arTarget && arVideo) {
-                console.log('✅ AR Configurado correctamente');
+            // Ocultar botón de colocar en modo marcador
+            document.getElementById('place-btn').style.display = 'none';
+            
+            setupMarkerEvents();
+        }
+        
+        function setupMarkerEvents() {
+            setTimeout(() => {
+                const target = document.querySelector('[mindar-image-target]');
+                arVideo = document.querySelector('#ar-video');
                 
-                // Evento: Marcador detectado
-                arTarget.addEventListener('targetFound', () => {
-                    console.log('🎯 Marcador detectado');
-                    
-                    // Actualizar indicador
-                    detectionIndicator.innerHTML = '<i class="fas fa-check"></i> Marcador detectado';
-                    detectionIndicator.style.borderColor = '#4CAF50';
-                    
-                    // Reproducir video
-                    arVideo.muted = !soundEnabled;
-                    arVideo.play().then(() => {
-                        console.log('▶️ Video en reproducción');
-                    }).catch(err => {
-                        console.log('⚠️ Error reproduciendo video:', err);
-                        // Intentar con mute
-                        arVideo.muted = true;
-                        arVideo.play();
+                if (target && arVideo) {
+                    target.addEventListener('targetFound', () => {
+                        document.getElementById('indicator').textContent = '✅ Imán detectado';
+                        document.getElementById('indicator').style.background = 'rgba(76, 175, 80, 0.8)';
+                        
+                        arVideo.play().catch(e => {
+                            arVideo.muted = true;
+                            arVideo.play();
+                        });
                     });
-                });
-                
-                // Evento: Marcador perdido
-                arTarget.addEventListener('targetLost', () => {
-                    console.log('❌ Marcador perdido');
                     
-                    // Actualizar indicador
-                    detectionIndicator.innerHTML = '<i class="fas fa-search"></i> Buscando marcador...';
-                    detectionIndicator.style.borderColor = '#FF9800';
+                    target.addEventListener('targetLost', () => {
+                        document.getElementById('indicator').textContent = '🔍 Buscando imán...';
+                        document.getElementById('indicator').style.background = 'rgba(0, 0, 0, 0.8)';
+                        arVideo.pause();
+                    });
+                }
+            }, 1000);
+        }
+        
+        // ===== MODO MARKERLESS =====
+        function startMarkerlessAR() {
+            document.getElementById('ar-scene').innerHTML = `
+                <a-scene embedded>
+                    <a-assets>
+                        <video id="ar-video" src="asset.mp4" preload="auto" loop playsinline></video>
+                    </a-assets>
                     
-                    // Pausar video
-                    arVideo.pause();
-                });
-                
-                // Botón de sonido
-                soundBtn.addEventListener('click', () => {
-                    soundEnabled = !soundEnabled;
+                    <a-camera position="0 1.6 0">
+                        <a-cursor></a-cursor>
+                    </a-camera>
                     
-                    if (arVideo) {
-                        arVideo.muted = !soundEnabled;
+                    <!-- Video que aparecerá cuando se coloque -->
+                    <a-video id="floating-video" src="#ar-video" width="1.78" height="1" 
+                             position="0 0 -2" visible="false" rotation="0 0 0"></a-video>
+                </a-scene>
+            `;
+            
+            document.getElementById('ar-scene').style.display = 'block';
+            document.getElementById('indicator').textContent = '👆 Toca "📍" para colocar contenido';
+            
+            setupMarkerlessEvents();
+        }
+        
+        function setupMarkerlessEvents() {
+            // Mostrar botón de colocar
+            document.getElementById('place-btn').style.display = 'flex';
+            
+            // Configurar evento de colocación
+            document.getElementById('place-btn').addEventListener('click', () => {
+                if (!isVideoPlaced) {
+                    placeVideoInWorld();
+                } else {
+                    resetVideoPosition();
+                }
+            });
+            
+            // También permitir tocar la pantalla para colocar
+            const scene = document.querySelector('a-scene');
+            if (scene) {
+                scene.addEventListener('click', (event) => {
+                    if (!isVideoPlaced) {
+                        placeVideoAtPosition(event);
                     }
-                    
-                    soundBtn.innerHTML = soundEnabled ? 
-                        '<i class="fas fa-volume-up"></i>' : 
-                        '<i class="fas fa-volume-mute"></i>';
-                    
-                    soundBtn.style.background = soundEnabled ? 
-                        'rgba(46, 204, 113, 0.9)' : 'rgba(52, 152, 219, 0.9)';
-                    
-                    // Efecto visual
-                    soundBtn.style.transform = 'scale(0.9)';
-                    setTimeout(() => {
-                        soundBtn.style.transform = 'scale(1)';
-                    }, 100);
-                    
-                    console.log(soundEnabled ? '🔊 Sonido activado' : '🔇 Sonido desactivado');
                 });
-                
-                // Botón de ayuda
-                helpBtn.addEventListener('click', () => {
-                    detectionIndicator.innerHTML = '<i class="fas fa-info-circle"></i> Apunta la cámara al imán';
-                    detectionIndicator.style.borderColor = '#3498db';
-                    
-                    setTimeout(() => {
-                        if (!detectionIndicator.innerHTML.includes('detectado')) {
-                            detectionIndicator.innerHTML = '<i class="fas fa-search"></i> Buscando marcador...';
-                            detectionIndicator.style.borderColor = '#FF9800';
-                        }
-                    }, 3000);
-                });
-                
-            } else {
-                console.log('🔄 Reintentando configuración AR...');
-                setTimeout(setupAREvents, 500);
             }
         }
-
-        // ===== FINALIZAR EXPERIENCIA =====
-        function exitARExperience() {
-            // Pausar video si existe
+        
+        function placeVideoInWorld() {
+            const video = document.getElementById('floating-video');
+            if (video) {
+                video.setAttribute('visible', 'true');
+                video.setAttribute('position', '0 1.5 -3'); // 3 metros frente a la cámara
+                isVideoPlaced = true;
+                
+                arVideo = video.components.material.material.map.image;
+                arVideo.play().catch(e => {
+                    arVideo.muted = true;
+                    arVideo.play();
+                });
+                
+                document.getElementById('indicator').textContent = '✅ Contenido colocado';
+                document.getElementById('indicator').style.background = 'rgba(76, 175, 80, 0.8)';
+                document.getElementById('place-btn').innerHTML = '🔄';
+            }
+        }
+        
+        function placeVideoAtPosition(event) {
+            const video = document.getElementById('floating-video');
+            const camera = document.querySelector('a-camera');
+            
+            if (video && camera) {
+                // Obtener posición de la cámara
+                const camPos = camera.getAttribute('position');
+                
+                // Colocar video 2 metros frente a la cámara
+                video.setAttribute('visible', 'true');
+                video.setAttribute('position', {
+                    x: camPos.x,
+                    y: camPos.y - 0.5,
+                    z: camPos.z - 2
+                });
+                
+                isVideoPlaced = true;
+                
+                arVideo = video.components.material.material.map.image;
+                arVideo.play().catch(e => {
+                    arVideo.muted = true;
+                    arVideo.play();
+                });
+                
+                document.getElementById('indicator').textContent = '✅ Contenido colocado';
+                document.getElementById('indicator').style.background = 'rgba(76, 175, 80, 0.8)';
+                document.getElementById('place-btn').innerHTML = '🔄';
+            }
+        }
+        
+        function resetVideoPosition() {
+            const video = document.getElementById('floating-video');
+            if (video) {
+                video.setAttribute('visible', 'false');
+                isVideoPlaced = false;
+                
+                if (arVideo) {
+                    arVideo.pause();
+                    arVideo.currentTime = 0;
+                }
+                
+                document.getElementById('indicator').textContent = '👆 Toca "📍" para colocar contenido';
+                document.getElementById('indicator').style.background = 'rgba(0, 0, 0, 0.8)';
+                document.getElementById('place-btn').innerHTML = '📍';
+            }
+        }
+        
+        // ===== CONTROLES COMPARTIDOS =====
+        document.getElementById('sound-btn').addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            if (arVideo) {
+                arVideo.muted = !soundEnabled;
+            }
+            document.getElementById('sound-btn').innerHTML = soundEnabled ? '🔊' : '🔇';
+        });
+        
+        document.getElementById('help-btn').addEventListener('click', () => {
+            if (selectedMode === 'marker') {
+                alert('AYUDA - MODO CON IMÁN:\n\n1. Asegúrate de tener buena iluminación\n2. Apunta la cámara al imán físico\n3. Mantén el imán estable\n4. El video aparecerá automáticamente');
+            } else {
+                alert('AYUDA - MODO LIBRE:\n\n1. Toca el botón "📍" para colocar el contenido\n2. También puedes tocar la pantalla\n3. El video se colocará frente a ti\n4. Toca "🔄" para recolocar');
+            }
+        });
+        
+        document.getElementById('exit-btn').addEventListener('click', () => {
+            // Pausar video
             if (arVideo) {
                 arVideo.pause();
                 arVideo.currentTime = 0;
             }
             
-            // Ocultar controles AR
+            // Limpiar escena
+            document.getElementById('ar-scene').innerHTML = '';
+            document.getElementById('ar-scene').style.display = 'none';
+            
+            // Ocultar controles
             document.getElementById('exit-btn').style.display = 'none';
             document.getElementById('ar-controls').style.display = 'none';
-            document.getElementById('detection-indicator').style.display = 'none';
+            document.getElementById('indicator').style.display = 'none';
             
-            // Ocultar escena AR
-            const arSceneContainer = document.getElementById('ar-scene');
-            arSceneContainer.style.opacity = '0';
+            // Resetear estado
+            selectedMode = '';
+            isVideoPlaced = false;
+            document.getElementById('place-btn').innerHTML = '📍';
+            document.getElementById('place-btn').style.display = 'flex';
+            document.getElementById('sound-btn').innerHTML = '🔊';
             
-            setTimeout(() => {
-                // Limpiar escena AR
-                arSceneContainer.innerHTML = '';
-                
-                // Mostrar pantalla de carga
-                const loadingScreen = document.getElementById('loading-screen');
-                loadingScreen.style.display = 'flex';
-                loadingScreen.style.opacity = '0';
-                
-                setTimeout(() => {
-                    loadingScreen.style.opacity = '1';
-                    
-                    // Reiniciar carga
-                    document.getElementById('progressBar').style.width = '0%';
-                    document.getElementById('percentage').textContent = '0%';
-                    document.getElementById('percentage').style.color = 'white';
-                    document.getElementById('start-btn').style.display = 'none';
-                    
-                    // Volver a cargar recursos
-                    loadResources();
-                }, 50);
-                
-            }, 500);
+            // Mostrar pantalla de inicio
+            document.getElementById('start-screen').style.display = 'flex';
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressBar').style.background = 'linear-gradient(90deg, #FF9800, #FF5722)';
+            document.getElementById('progressText').textContent = 'Selecciona una opción para comenzar';
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('startBtn').innerHTML = '<span>⏳ ESPERANDO...</span>';
             
-            console.log('✅ Experiencia finalizada');
-        }
-
+            // Resetear selección visual
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.style.background = 'rgba(255, 255, 255, 0.1)';
+                btn.style.borderColor = '#FF9800';
+            });
+        });
+        
         // ===== INICIALIZACIÓN =====
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 Iniciando Experiencia AR para Imanes Turísticos');
-            
-            // Cargar recursos
-            loadResources();
-            
-            // Botón de inicio (después de la carga)
-            document.getElementById('start-btn').addEventListener('click', () => {
-                showInstructionsScreen();
-            });
-            
-            // Botón de continuar en instrucciones
-            document.getElementById('instructions-next-btn').addEventListener('click', () => {
-                showPermissionScreen();
-            });
-            
-            // Botón para permitir cámara
-            document.getElementById('allow-camera-btn').addEventListener('click', async () => {
-                const permissionGranted = await requestCameraPermission();
-                if (permissionGranted) {
-                    startARExperience();
-                } else {
-                    // Si deniegan permisos, volver al inicio
-                    const permissionScreen = document.getElementById('permission-screen');
-                    const loadingScreen = document.getElementById('loading-screen');
-                    
-                    permissionScreen.style.opacity = '0';
-                    setTimeout(() => {
-                        permissionScreen.style.display = 'none';
-                        loadingScreen.style.display = 'flex';
-                        loadingScreen.style.opacity = '1';
-                    }, 300);
-                }
-            });
-            
-            // Botón para denegar cámara
-            document.getElementById('deny-camera-btn').addEventListener('click', () => {
-                const permissionScreen = document.getElementById('permission-screen');
-                const loadingScreen = document.getElementById('loading-screen');
-                
-                permissionScreen.style.opacity = '0';
-                setTimeout(() => {
-                    permissionScreen.style.display = 'none';
-                    loadingScreen.style.display = 'flex';
-                    loadingScreen.style.opacity = '1';
-                    
-                    // Mostrar mensaje
-                    alert('La aplicación requiere acceso a la cámara para funcionar.');
-                }, 300);
-            });
-            
-            // Botón de salida
-            document.getElementById('exit-btn').addEventListener('click', exitARExperience);
-            
-            // Atajo de teclado (Escape para salir)
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    exitARExperience();
-                }
-            });
-            
-            // Ajustar altura para móviles
-            document.body.style.height = window.innerHeight + 'px';
-            window.addEventListener('resize', () => {
-                document.body.style.height = window.innerHeight + 'px';
-            });
+            // Verificar compatibilidad
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('Tu dispositivo no tiene cámara o no es compatible con AR.');
+            }
         });
     </script>
 </body>
